@@ -1,5 +1,5 @@
 #### This repo is for the methods described in the paper.
-Wang QH, Huang TY, “Open-source segmentation toolbox for 4D Cardiac MRI: Enhancing U-Net Performance through Spatial-Temporal Features and Edge Labeling” 
+Wang QH, Ho JY, Huang TY, “Open-source segmentation toolbox for 4D Cardiac MRI: Enhancing U-Net Performance through Spatial-Temporal Features and Edge Labeling” 
 
 * This repo is only for CPU-based segmentation.
 * For updated models , please visit: https://github.com/htylab/tigerhx
