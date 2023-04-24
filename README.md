@@ -14,6 +14,7 @@ Wang QH, Ho JY, Huang TY, “Open-source segmentation toolbox for 4D Cardiac MRI
     python comb.py c:\data\*.nii.gz -o c:\output
     python comb.py c:\data\subject.nii.gz -o c:\output
     python comb.py c:\data\subject.nii.gz
+    python comb.py c:\data\*.nii.gz -o c:\output -a # producing AHA segments with this option
 ```
 * Please note that upon first use, the program will require an internet connection to download the model file.
 ## Citation

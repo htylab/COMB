@@ -1,13 +1,5 @@
 # -*- coding: utf-8 -*-
-'''
-example usage:
-%matplotlib inline
-import matplotlib.pyplot as plt
-from pymr.heart import ahaseg
-heart_mask = (LVbmask, LVwmask, RVbmask)
-label_mask = ahaseg.get_seg(heart_mask, nseg=4)
-plt.imshow(label_mask)
-'''
+
 import numpy as np
 from scipy import ndimage
 import matplotlib.pyplot as plt
@@ -108,13 +100,8 @@ def get_theta(sweep360):
     downrank2 = np.nonzero(y2 >= min(np.max(y2), 5))[0][-1]
     uprank = int(max(uprank1, uprank2)) % 360 + 360
     downrank = int(min(downrank1, downrank2)) % 360 + 360
-    #print(uprank, downrank)
     phase = np.deg2rad(np.array([uprank, downrank]))
     uprank, downrank = np.rad2deg(np.unwrap(phase)).astype(np.int) - 360
-    
-
-    #print(uprank, downrank)
-    #print('=' * 20)
     return uprank, downrank
 
 
@@ -182,30 +169,18 @@ def get_angle(heart_mask, nseg=4):
                                      np.arange(angles2[ii], angles2[ii+1],
                                      0.1), LV_center)
         
-        smask = sector_mask(xall, yall, LVwmask)
-        
-        #print(angles2[ii], angles2[ii+1])
-        #print(xall, yall)
-        #plt.figure()
-        #plt.imshow(smask)
-        #plt.title('%f_%f' % (angles2[ii], angles2[ii+1]))
+        smask = sector_mask(xall, yall, LVwmask)       
         
         AHA_sector[smask > 0] = (ii + 1)
     
-    
-    #plt.figure()
-    #plt.imshow(AHA_sector)
-    #plt.title(angles2)
+
     return anglelist, mask360, AHA_sector
-#print(time.time() - t)
-#plt.figure()
-#plt.imshow(label_mask)
+
 
 def get_seg(heart_mask, nseg=4):
     LVbmask, LVwmask, RVbmask = get_heartmask(heart_mask)
 
     _, _, AHA_sector = get_angle(heart_mask, nseg)
-    #label_mask = labelit(anglelist, LVwmask)
     label_mask = AHA_sector * LVwmask
 
     return label_mask

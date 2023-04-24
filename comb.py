@@ -12,8 +12,8 @@ import argparse
 import time
 import platform
 from os.path import join, isfile
-import os
 import sys
+from ahaseg import get_seg
 warnings.filterwarnings("ignore")
 
 nib.Nifti1Header.quaternion_threshold = -100
@@ -172,7 +172,7 @@ class UNet3d(nn.Module):
         mask = self.dec4(mask, x1)
         mask = self.out(mask)
         return mask
-    
+
 
 def remove_common_substrings(strings):
     # Split each string by os.sep
@@ -283,7 +283,7 @@ def run(f, savef):
 
     nib.save(result, savef)
 
-    return 1
+    return emp, result
 
 device = 'cpu'
 model_file = get_model('COMB.pt')
@@ -296,6 +296,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("input", nargs="+", type=str, help="Input mat file")
     parser.add_argument("-o", "--output", default=None, help="Output Path")
+    parser.add_argument('-a', '--aha', action='store_true',
+                        help='Producing AHA masks, both 6 and 4 segments')
     args = parser.parse_args()
 
     print("Starting CMR COMB model.....")
@@ -342,10 +344,37 @@ def main():
 
         t = time.time()
         
-        run(f, ff_output)
-
-
+        data, result = run(f, ff_output)
         print("Writing output:", ff_output)
+        
+        if args.aha:
+            print('AHA Segmenting...')
+            xx, yy, zz, tt = data.shape
+            mask4 = data * 0
+            mask6 = data * 0
+
+            for zzz in tqdm.tqdm(range(zz)):
+                for ttt in range(tt):
+                    data3d = data[..., zzz, ttt]
+
+                    heart_mask = (data3d==1, data3d==2, data3d==3)
+                    try:
+                        mask4[..., zzz, ttt] = get_seg(heart_mask, nseg=4)
+                        mask6[..., zzz, ttt] = get_seg(heart_mask, nseg=6) 
+                    except:
+                        pass
+                    
+            result6 = nib.Nifti1Image(mask6, result.affine, result.header)
+            ff_output6 = ff_output.replace('_mask.nii.gz', '_aha6.nii.gz')
+            nib.save(result6, ff_output6)
+            print("Writing output:", ff_output6)
+
+            result4 = nib.Nifti1Image(mask4, result.affine, result.header)
+            ff_output4 = ff_output.replace('_mask.nii.gz', '_aha4.nii.gz')
+            nib.save(result4, ff_output4)
+            print("Writing output:", ff_output4)
+        
+        
         print("Processing time: %d seconds" % (time.time() - t))
 
 
